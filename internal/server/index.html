@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ohara</title>
+
+  <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg">
+
+  <script src="/static/js/tailwindcss.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base:     'var(--base)',
+            mantle:   'var(--mantle)',
+            crust:    'var(--crust)',
+            text:     'var(--text)',
+            subtext1: 'var(--subtext1)',
+            subtext0: 'var(--subtext0)',
+            overlay2: 'var(--overlay2)',
+            overlay1: 'var(--overlay1)',
+            overlay0: 'var(--overlay0)',
+            surface2: 'var(--surface2)',
+            surface1: 'var(--surface1)',
+            surface0: 'var(--surface0)',
+            blue:     'var(--blue)',
+            lavender: 'var(--lavender)',
+            mauve:    'var(--mauve)',
+            green:    'var(--green)',
+            peach:    'var(--peach)',
+            red:      'var(--red)',
+            yellow:   'var(--yellow)',
+            teal:     'var(--teal)',
+            sky:      'var(--sky)',
+            sapphire: 'var(--sapphire)',
+            pink:     'var(--pink)',
+            flamingo: 'var(--flamingo)',
+            rosewater:'var(--rosewater)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="/static/css/inter.css">
+  <link rel="stylesheet" href="/static/css/jetbrains-mono.css">
+
+  <script src="/static/js/highlight.min.js"></script>
+  <script src="/static/js/chart.umd.min.js"></script>
+  <script src="/static/js/marked.umd.js"></script>
+  <script src="/static/js/marked-highlight.umd.js"></script>
+  <script src="/static/js/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --rosewater: #f5e0dc;
+      --flamingo:  #f2cdcd;
+      --pink:      #f5c2e7;
+      --mauve:     #cba6f7;
+      --red:       #f38ba8;
+      --maroon:    #eba0ac;
+      --peach:     #fab387;
+      --yellow:    #f9e2af;
+      --green:     #a6e3a1;
+      --teal:      #94e2d5;
+      --sky:       #89dceb;
+      --sapphire:  #74c7ec;
+      --blue:      #89b4fa;
+      --lavender:  #b4befe;
+      --text:      #cdd6f4;
+      --subtext1:  #bac2de;
+      --subtext0:  #a6adc8;
+      --overlay2:  #9399b2;
+      --overlay1:  #7f849c;
+      --overlay0:  #6c7086;
+      --surface2:  #585b70;
+      --surface1:  #45475a;
+      --surface0:  #313244;
+      --base:      #1e1e2e;
+      --mantle:    #181825;
+      --crust:     #11111b;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--surface1); border-radius: 999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--surface2); }
+    .custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--surface1) transparent; }
+
+    .tab { color: var(--subtext0); }
+    .tab:hover { color: var(--text); background: var(--surface1); }
+    .tab.active { background: var(--blue); color: var(--base); font-weight: 600; }
+
+    .tag-chip {
+      display: inline-block; padding: 2px 10px; font-size: 0.7rem; border-radius: 999px;
+      border: 1px solid var(--surface1); background: var(--surface0); color: var(--subtext0);
+      cursor: pointer; transition: all 0.15s ease; user-select: none;
+    }
+    .tag-chip:hover { border-color: var(--surface2); }
+    .tag-chip.selected { background: var(--blue); color: var(--base); border-color: var(--blue); }
+
+    .filter-tag-chip {
+      display: inline-block; padding: 2px 10px; font-size: 0.7rem; border-radius: 999px;
+      border: 1px solid var(--surface1); background: var(--surface0); color: var(--subtext0);
+      cursor: pointer; transition: all 0.15s ease; user-select: none;
+    }
+    .filter-tag-chip:hover { border-color: var(--surface2); }
+    .filter-tag-chip.selected { background: var(--mauve); color: var(--base); border-color: var(--mauve); }
+
+    .tp-row {
+      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+      border-radius: 12px; transition: background 0.15s ease; cursor: default; position: relative;
+    }
+    .tp-row:hover { background: var(--surface1); }
+    .tp-row .tp-actions { opacity: 0; transition: opacity 0.15s ease; display: flex; gap: 4px; flex-shrink: 0; }
+    .tp-row:hover .tp-actions { opacity: 1; }
+
+    #tp-modal.show { display: flex !important; }
+    #tp-modal.show #tp-modal-dialog { transform: scale(1); opacity: 1; }
+
+    .report-item {
+      padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 0.825rem;
+      color: var(--subtext0); transition: all 0.15s ease;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .report-item:hover { background: var(--surface1); color: var(--text); }
+    .report-item.active { background: var(--blue); color: var(--base); font-weight: 600; }
+
+    .hljs {
+      background: var(--base) !important; color: var(--text) !important;
+      border-radius: 12px; padding: 1em !important;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+    }
+    .hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-name { color: var(--mauve); }
+    .hljs-string, .hljs-attr { color: var(--green); }
+    .hljs-number, .hljs-literal { color: var(--peach); }
+    .hljs-comment, .hljs-quote { color: var(--overlay0); font-style: italic; }
+    .hljs-function, .hljs-title { color: var(--blue); }
+    .hljs-variable, .hljs-template-variable { color: var(--red); }
+    .hljs-type, .hljs-class .hljs-title { color: var(--yellow); }
+    .hljs-meta { color: var(--peach); }
+    .hljs-symbol, .hljs-bullet { color: var(--flamingo); }
+    .hljs-addition { color: var(--green); background: rgba(166,227,161,0.1); }
+    .hljs-deletion { color: var(--red); background: rgba(243,139,168,0.1); }
+    .hljs-section { color: var(--blue); font-weight: bold; }
+    .hljs-emphasis { font-style: italic; }
+    .hljs-strong { font-weight: bold; }
+    .hljs-link { color: var(--blue); text-decoration: underline; }
+
+    .prose-catppuccin { color: var(--text); line-height: 1.75; font-size: 0.9rem; }
+    .prose-catppuccin h1, .prose-catppuccin h2, .prose-catppuccin h3,
+    .prose-catppuccin h4, .prose-catppuccin h5, .prose-catppuccin h6 {
+      color: var(--text); font-weight: 700; margin-top: 1.5em; margin-bottom: 0.5em; line-height: 1.3;
+    }
+    .prose-catppuccin h1 { font-size: 1.6rem; border-bottom: 1px solid var(--surface0); padding-bottom: 0.3em; }
+    .prose-catppuccin h2 { font-size: 1.3rem; border-bottom: 1px solid var(--surface0); padding-bottom: 0.3em; }
+    .prose-catppuccin h3 { font-size: 1.1rem; }
+    .prose-catppuccin p { margin: 0.75em 0; }
+    .prose-catppuccin a { color: var(--blue); text-decoration: none; }
+    .prose-catppuccin a:hover { text-decoration: underline; }
+    .prose-catppuccin strong { color: var(--text); font-weight: 600; }
+    .prose-catppuccin em { color: var(--subtext1); }
+    .prose-catppuccin code {
+      background: var(--base); color: var(--mauve); padding: 2px 6px; border-radius: 6px;
+      font-size: 0.8em; font-family: 'JetBrains Mono', monospace;
+    }
+    .prose-catppuccin pre {
+      background: var(--base); border-radius: 12px; padding: 1em; overflow-x: auto; margin: 1em 0;
+    }
+    .prose-catppuccin pre code { background: none; padding: 0; color: var(--text); }
+    .prose-catppuccin blockquote {
+      border-left: 3px solid var(--blue); padding-left: 1em; margin: 1em 0; color: var(--subtext0);
+    }
+    .prose-catppuccin ul, .prose-catppuccin ol { padding-left: 1.5em; margin: 0.75em 0; }
+    .prose-catppuccin li { margin: 0.25em 0; }
+    .prose-catppuccin table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    .prose-catppuccin th {
+      background: var(--surface0); color: var(--text); font-weight: 600;
+      text-align: left; padding: 8px 12px; border: 1px solid var(--surface1);
+    }
+    .prose-catppuccin td { padding: 8px 12px; border: 1px solid var(--surface1); }
+    .prose-catppuccin tr:nth-child(even) { background: rgba(49, 50, 68, 0.4); }
+    .prose-catppuccin hr { border: none; border-top: 1px solid var(--surface0); margin: 1.5em 0; }
+    .prose-catppuccin img { border-radius: 12px; max-width: 100%; }
+    .prose-catppuccin .mermaid { display: flex; justify-content: center; margin: 1.5em 0; }
+    .prose-catppuccin .mermaid svg { max-width: 100%; }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--overlay0); font-size: 0.875rem; }
+
+    .cat-badge { font-size: 0.65rem; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+  </style>
+</head>
+<body class="bg-crust text-text font-sans overflow-hidden h-screen flex flex-col">
+
+  <header class="flex items-center justify-center pt-4 pb-2 relative">
+    <nav class="flex items-center gap-1 bg-surface0 rounded-full px-1.5 py-1.5">
+      <button class="tab active px-5 py-1.5 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer"
+              data-tab="dashboard">Dashboard</button>
+      <button class="tab px-5 py-1.5 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer"
+              data-tab="reports">Reports</button>
+    </nav>
+    <span class="absolute left-6 top-1/2 -translate-y-1/2 text-lg font-bold text-lavender tracking-tight select-none">Ohara</span>
+  </header>
+
+  <main class="flex-1 overflow-hidden px-6 pb-4 pt-2">
+
+    <section id="dashboard" class="tab-content active h-full flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
+
+      <div class="flex items-center justify-between flex-shrink-0">
+        <h1 class="text-2xl font-bold text-text">Overview</h1>
+        <button id="btn-new-touchpoint"
+                class="flex items-center gap-2 bg-blue text-base font-semibold text-sm px-5 py-2 rounded-full hover:brightness-110 transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          New Touchpoint
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 flex-shrink-0 flex-wrap">
+        <select id="date-range"
+                class="bg-surface0 border border-surface1 text-subtext0 text-sm rounded-full px-4 py-1.5 focus:outline-none focus:border-blue cursor-pointer">
+          <option value="30">Last 30 days</option>
+          <option value="90" selected>Last 90 days</option>
+          <option value="180">Last 180 days</option>
+          <option value="365">Last year</option>
+          <option value="0">All time</option>
+        </select>
+        <select id="filter-category"
+                class="bg-surface0 border border-surface1 text-subtext0 text-sm rounded-full px-4 py-1.5 focus:outline-none focus:border-blue cursor-pointer">
+          <option value="">All Categories</option>
+        </select>
+        <div id="filter-tags" class="flex items-center gap-1.5 flex-wrap"></div>
+      </div>
+
+      <div class="bg-surface0 rounded-3xl p-6 flex-shrink-0">
+        <h3 class="text-sm font-semibold text-subtext0 mb-4">Touchpoints Over Time</h3>
+        <canvas id="chart-timeline" class="w-full" style="max-height:220px"></canvas>
+      </div>
+
+      <div class="bg-surface0 rounded-3xl p-4 flex-shrink-0">
+        <h3 class="text-sm font-semibold text-subtext0 mb-3 px-2">Recent Touchpoints</h3>
+        <div id="touchpoint-list" class="flex flex-col">
+        </div>
+      </div>
+    </section>
+
+    <section id="reports" class="tab-content h-full flex gap-4 overflow-hidden" style="display:none">
+      <div class="w-72 flex-shrink-0 bg-surface0 rounded-3xl p-4 overflow-y-auto custom-scrollbar flex flex-col">
+        <h2 class="text-sm font-semibold text-subtext0 mb-3 px-1">Reports</h2>
+        <div id="reports-list" class="flex flex-col gap-1">
+        </div>
+      </div>
+      <div class="flex-1 bg-surface0 rounded-3xl p-6 overflow-y-auto custom-scrollbar">
+        <div id="report-content" class="markdown-body prose-catppuccin">
+          <div class="flex items-center justify-center h-full text-overlay0 text-sm select-none">Select a report to view</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="tp-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div id="tp-modal-backdrop" class="absolute inset-0 bg-crust/70 backdrop-blur-sm"></div>
+    <div id="tp-modal-dialog"
+         class="relative bg-mantle border border-surface1 rounded-3xl shadow-2xl w-full max-w-lg mx-4 p-6 transform scale-95 opacity-0 transition-all duration-200">
+      <div class="flex items-center justify-between mb-5">
+        <h2 id="form-title" class="text-lg font-bold text-text">New Touchpoint</h2>
+        <button id="modal-close"
+                class="text-overlay0 hover:text-text transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="touchpoint-form" class="flex flex-col gap-4">
+        <input type="hidden" id="edit-id">
+
+        <div>
+          <label for="tp-description" class="block text-xs font-semibold text-subtext0 uppercase tracking-wider mb-1">Description</label>
+          <textarea id="tp-description" rows="3" required placeholder="What did you do?"
+                    class="w-full bg-surface0 border border-surface1 text-text rounded-xl px-3 py-2 text-sm placeholder-overlay0 focus:outline-none focus:border-blue resize-none"></textarea>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label for="tp-category" class="block text-xs font-semibold text-subtext0 uppercase tracking-wider mb-1">Category</label>
+            <select id="tp-category" required
+                    class="w-full bg-surface0 border border-surface1 text-text rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue cursor-pointer"></select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-semibold text-subtext0 uppercase tracking-wider mb-1">Tags</label>
+            <div id="tp-tags" class="flex flex-wrap gap-1.5 mt-0.5"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label for="tp-people" class="block text-xs font-semibold text-subtext0 uppercase tracking-wider mb-1">People</label>
+            <input type="text" id="tp-people" placeholder="Comma-separated names"
+                   class="w-full bg-surface0 border border-surface1 text-text rounded-xl px-3 py-2 text-sm placeholder-overlay0 focus:outline-none focus:border-blue">
+          </div>
+          <div class="flex-1">
+            <label for="tp-url" class="block text-xs font-semibold text-subtext0 uppercase tracking-wider mb-1">URL</label>
+            <input type="url" id="tp-url" placeholder="https://..."
+                   class="w-full bg-surface0 border border-surface1 text-text rounded-xl px-3 py-2 text-sm placeholder-overlay0 focus:outline-none focus:border-blue">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 mt-1">
+          <button type="submit" id="form-submit"
+                  class="bg-blue text-base font-semibold text-sm px-6 py-2 rounded-full hover:brightness-110 transition cursor-pointer">
+            Add Touchpoint
+          </button>
+          <button type="button" id="form-cancel"
+                  class="text-subtext0 text-sm hover:text-text transition cursor-pointer hidden">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/touchpoints.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+  <script src="/static/js/reports.js"></script>
+</body>
+</html>

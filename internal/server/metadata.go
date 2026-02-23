@@ -33,6 +33,15 @@ func (s *Server) addCategory(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]string{"name": p.Name})
 }
 
+func (s *Server) removeCategory(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if err := s.store.RemoveCategory(name); err != nil {
+		writeStoreError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) addTag(w http.ResponseWriter, r *http.Request) {
 	var p namePayload
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
@@ -46,4 +55,13 @@ func (s *Server) addTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, map[string]string{"name": p.Name})
+}
+
+func (s *Server) removeTag(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if err := s.store.RemoveTag(name); err != nil {
+		writeStoreError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

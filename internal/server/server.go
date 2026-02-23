@@ -19,7 +19,9 @@ type Storer interface {
 	DeleteTouchpoint(id string) error
 	GetMetadata() (model.Metadata, error)
 	AddCategory(name string) error
+	RemoveCategory(name string) error
 	AddTag(name string) error
+	RemoveTag(name string) error
 	ListReports() ([]string, error)
 	GetReport(filename string) (string, error)
 	CreateReport(filename, content string) error
@@ -53,7 +55,9 @@ func (s *Server) setup() {
 
 	s.mux.HandleFunc("GET /api/metadata", s.getMetadata)
 	s.mux.HandleFunc("POST /api/metadata/categories", s.addCategory)
+	s.mux.HandleFunc("DELETE /api/metadata/categories/{name}", s.removeCategory)
 	s.mux.HandleFunc("POST /api/metadata/tags", s.addTag)
+	s.mux.HandleFunc("DELETE /api/metadata/tags/{name}", s.removeTag)
 
 	s.mux.HandleFunc("GET /api/reports", s.listReports)
 	s.mux.HandleFunc("GET /api/reports/{filename}", s.getReport)

@@ -197,6 +197,17 @@
     .empty-state { text-align: center; padding: 3rem; color: var(--overlay0); font-size: 0.875rem; }
 
     .cat-badge { font-size: 0.65rem; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+
+    #reports-sidebar-toggle { display: none; }
+
+    @media (max-width: 768px) {
+      #reports-sidebar { display: none; }
+      #reports-sidebar.open { display: flex; position: absolute; inset: 0; z-index: 20; width: 100%; border-radius: 1.5rem; }
+      #reports { position: relative; }
+      #reports-sidebar-toggle { display: flex; }
+      #metadata { flex-direction: column; }
+      #tp-modal-dialog { max-width: 100% !important; margin: 0.5rem !important; max-height: 95vh; overflow-y: auto; }
+    }
   </style>
 </head>
 <body class="bg-crust text-text font-sans overflow-hidden h-screen flex flex-col">
@@ -207,6 +218,8 @@
               data-tab="dashboard">Dashboard</button>
       <button class="tab px-5 py-1.5 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer"
               data-tab="reports">Reports</button>
+      <button class="tab px-5 py-1.5 text-sm font-medium rounded-full transition-all duration-200 cursor-pointer"
+              data-tab="metadata">Metadata</button>
     </nav>
     <span class="absolute left-6 top-1/2 -translate-y-1/2 text-lg font-bold text-lavender tracking-tight select-none">Ohara</span>
   </header>
@@ -242,12 +255,12 @@
         <div id="filter-tags" class="flex items-center gap-1.5 flex-wrap"></div>
       </div>
 
-      <div class="bg-surface0 rounded-3xl p-6 flex-shrink-0">
+      <div class="bg-mantle rounded-3xl p-6 flex-shrink-0">
         <h3 class="text-sm font-semibold text-subtext0 mb-4">Touchpoints Over Time</h3>
         <canvas id="chart-timeline" class="w-full" style="max-height:220px"></canvas>
       </div>
 
-      <div class="bg-surface0 rounded-3xl p-4 flex-shrink-0">
+      <div class="bg-mantle rounded-3xl p-4 flex-shrink-0">
         <h3 class="text-sm font-semibold text-subtext0 mb-3 px-2">Recent Touchpoints</h3>
         <div id="touchpoint-list" class="flex flex-col">
         </div>
@@ -255,15 +268,67 @@
     </section>
 
     <section id="reports" class="tab-content h-full flex gap-4 overflow-hidden" style="display:none">
-      <div class="w-72 flex-shrink-0 bg-surface0 rounded-3xl p-4 overflow-y-auto custom-scrollbar flex flex-col">
-        <h2 class="text-sm font-semibold text-subtext0 mb-3 px-1">Reports</h2>
+      <div id="reports-sidebar" class="w-72 flex-shrink-0 bg-mantle rounded-3xl p-4 overflow-y-auto custom-scrollbar flex flex-col">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="text-sm font-semibold text-subtext0">Reports</h2>
+          <div class="flex items-center gap-2">
+            <button id="btn-upload-report"
+                    class="text-subtext0 hover:text-blue transition cursor-pointer" title="Upload report">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+              </svg>
+            </button>
+            <button id="reports-sidebar-close"
+                    class="text-subtext0 hover:text-text transition cursor-pointer hidden" title="Close sidebar">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <input type="file" id="report-file-input" accept=".md" class="hidden">
+        </div>
         <div id="reports-list" class="flex flex-col gap-1">
         </div>
       </div>
-      <div class="flex-1 bg-surface0 rounded-3xl p-6 overflow-y-auto custom-scrollbar">
+      <div class="flex-1 bg-mantle rounded-3xl p-6 overflow-y-auto custom-scrollbar">
+        <div class="flex items-center gap-3 mb-4">
+          <button id="reports-sidebar-toggle"
+                  class="items-center gap-1.5 text-subtext0 hover:text-text text-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+            </svg>
+          </button>
+        </div>
         <div id="report-content" class="markdown-body prose-catppuccin">
           <div class="flex items-center justify-center h-full text-overlay0 text-sm select-none">Select a report to view</div>
         </div>
+      </div>
+    </section>
+
+    <section id="metadata" class="tab-content h-full flex gap-6 overflow-hidden" style="display:none">
+      <div class="flex-1 bg-mantle rounded-3xl p-6 overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-text">Categories</h2>
+        </div>
+        <div class="flex items-center gap-2 mb-4">
+          <input type="text" id="new-category-input" placeholder="New category..."
+                 class="flex-1 bg-surface0 border border-surface1 text-text rounded-full px-4 py-1.5 text-sm placeholder-overlay0 focus:outline-none focus:border-blue">
+          <button id="btn-add-category"
+                  class="bg-blue text-base font-semibold text-sm px-4 py-1.5 rounded-full hover:brightness-110 transition cursor-pointer">Add</button>
+        </div>
+        <div id="categories-list" class="flex flex-col gap-1"></div>
+      </div>
+      <div class="flex-1 bg-mantle rounded-3xl p-6 overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-text">Tags</h2>
+        </div>
+        <div class="flex items-center gap-2 mb-4">
+          <input type="text" id="new-tag-input" placeholder="New tag..."
+                 class="flex-1 bg-surface0 border border-surface1 text-text rounded-full px-4 py-1.5 text-sm placeholder-overlay0 focus:outline-none focus:border-blue">
+          <button id="btn-add-tag"
+                  class="bg-blue text-base font-semibold text-sm px-4 py-1.5 rounded-full hover:brightness-110 transition cursor-pointer">Add</button>
+        </div>
+        <div id="tags-list" class="flex flex-col gap-1"></div>
       </div>
     </section>
   </main>
@@ -333,5 +398,6 @@
   <script src="/static/js/touchpoints.js"></script>
   <script src="/static/js/dashboard.js"></script>
   <script src="/static/js/reports.js"></script>
+  <script src="/static/js/metadata.js"></script>
 </body>
 </html>

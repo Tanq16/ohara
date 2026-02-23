@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (btn.dataset.tab === "dashboard") initDashboard();
       if (btn.dataset.tab === "reports") loadReportsList();
+      if (btn.dataset.tab === "metadata") loadMetadata();
     });
   });
 

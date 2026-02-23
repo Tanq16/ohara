@@ -2,8 +2,8 @@
   <img src=".github/assets/logo.svg" alt="Ohara Logo" width="200">
   <h1>Ohara</h1>
 
-  <a href="https://github.com/tanishqrupaal/ohara/actions/workflows/release.yaml"><img alt="Build Workflow" src="https://github.com/tanishqrupaal/ohara/actions/workflows/release.yaml/badge.svg"></a>&nbsp;<a href="https://hub.docker.com/r/tanishqrupaal/ohara"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/tanishqrupaal/ohara"></a><br>
-  <a href="https://github.com/tanishqrupaal/ohara/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/tanishqrupaal/ohara"></a><br><br>
+  <a href="https://github.com/tanq16/ohara/actions/workflows/release.yaml"><img alt="Build Workflow" src="https://github.com/tanq16/ohara/actions/workflows/release.yaml/badge.svg"></a>&nbsp;<a href="https://hub.docker.com/r/tanq16/ohara"><img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/tanq16/ohara"></a><br>
+  <a href="https://github.com/tanq16/ohara/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/tanq16/ohara"></a><br><br>
 
   <a href="#screenshots">Screenshots</a> &bull; <a href="#installation-and-usage">Install & Use</a> &bull; <a href="#tips-and-notes">Tips & Notes</a>
 </div>
@@ -34,12 +34,12 @@ A self-hosted web application for tracking professional achievements, glue work,
 ### Docker (Recommended)
 
 ```bash
-docker run -d -p 8080:8080 -v ohara-data:/data tanishqrupaal/ohara
+docker run -d -p 8080:8080 -v ohara-data:/data tanq16/ohara
 ```
 
 ### Binary
 
-Download from [releases](https://github.com/tanishqrupaal/ohara/releases) and run:
+Download from [releases](https://github.com/tanq16/ohara/releases) and run:
 
 ```bash
 ./ohara --data-dir ./data --port 8080
@@ -48,7 +48,7 @@ Download from [releases](https://github.com/tanishqrupaal/ohara/releases) and ru
 ### Build from Source
 
 ```bash
-git clone https://github.com/tanishqrupaal/ohara
+git clone https://github.com/tanq16/ohara
 cd ohara
 make build
 ./ohara --data-dir ./data --port 8080

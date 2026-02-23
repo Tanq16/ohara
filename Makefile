@@ -4,7 +4,7 @@
 # Variables
 # =============================================================================
 APP_NAME := ohara
-DOCKER_USER := tanishqrupaal
+DOCKER_USER := tanq16
 
 # Build variables (set by CI or use defaults)
 VERSION ?= dev-build
@@ -88,11 +88,11 @@ clean: ## Remove built artifacts and downloaded assets
 # Build
 # =============================================================================
 build: assets verify-assets ## Build binary for current platform
-	@go build -ldflags="-s -w -X 'github.com/tanishqrupaal/ohara/cmd.AppVersion=$(VERSION)'" -o $(APP_NAME) .
+	@go build -ldflags="-s -w -X 'github.com/tanq16/ohara/cmd.AppVersion=$(VERSION)'" -o $(APP_NAME) .
 	@echo "$(GREEN)Built: ./$(APP_NAME)$(NC)"
 
 build-for: verify-assets ## Build binary for specified GOOS/GOARCH
-	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags="-s -w -X 'github.com/tanishqrupaal/ohara/cmd.AppVersion=$(VERSION)'" -o $(APP_NAME)-$(GOOS)-$(GOARCH) .
+	@CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags="-s -w -X 'github.com/tanq16/ohara/cmd.AppVersion=$(VERSION)'" -o $(APP_NAME)-$(GOOS)-$(GOARCH) .
 	@echo "$(GREEN)Built: ./$(APP_NAME)-$(GOOS)-$(GOARCH)$(NC)"
 
 build-all: assets verify-assets ## Build all platform binaries

@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tanishqrupaal/ohara/internal/model"
-	"github.com/tanishqrupaal/ohara/internal/store"
+	"github.com/tanq16/ohara/internal/model"
+	"github.com/tanq16/ohara/internal/store"
 )
 
 type Storer interface {

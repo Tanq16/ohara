@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/tanishqrupaal/ohara/internal/model"
+	"github.com/tanq16/ohara/internal/model"
 )
 
 func (s *Store) loadMetadata() (model.Metadata, error) {

@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/tanishqrupaal/ohara/internal/model"
+	"github.com/tanq16/ohara/internal/model"
 )
 
 var (

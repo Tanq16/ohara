@@ -1,4 +1,4 @@
-module github.com/tanishqrupaal/ohara
+module github.com/tanq16/ohara
 
 go 1.25.0
 

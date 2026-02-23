@@ -9,8 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"github.com/tanishqrupaal/ohara/internal/server"
-	"github.com/tanishqrupaal/ohara/internal/store"
+	"github.com/tanq16/ohara/internal/server"
+	"github.com/tanq16/ohara/internal/store"
 )
 
 var AppVersion = "dev-build"

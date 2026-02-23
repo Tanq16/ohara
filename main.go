@@ -1,6 +1,6 @@
 package main
 
-import "github.com/tanishqrupaal/ohara/cmd"
+import "github.com/tanq16/ohara/cmd"
 
 func main() {
 	cmd.Execute()

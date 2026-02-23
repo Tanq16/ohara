@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tanishqrupaal/ohara/internal/model"
+	"github.com/tanq16/ohara/internal/model"
 )
 
 func (s *Server) listTouchpoints(w http.ResponseWriter, r *http.Request) {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/tanishqrupaal/ohara/internal/model"
+	"github.com/tanq16/ohara/internal/model"
 )
 
 func (s *Store) loadTouchpoints() ([]model.Touchpoint, error) {

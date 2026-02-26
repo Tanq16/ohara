@@ -72,18 +72,18 @@ func New(cfg Config) (*Store, error) {
 	if _, err := os.Stat(mdPath); os.IsNotExist(err) {
 		defaults := model.Metadata{
 			Categories: []string{
+				"Feature Development",
+				"Bug Fix",
+				"Code Review",
+				"Technical Design",
+				"Tooling & Infrastructure",
+				"Documentation",
+				"Incident Response",
 				"Mentorship",
-				"Tools and infrastructure maintenance",
-				"Aiding engineering team",
-				"Providing engagement guidance and support",
-				"Feedbacks I am giving",
-				"Feedback I have received",
-				"Methodology improvements",
-				"Process improvement",
-				"Open Source & Community",
+				"Cross-team Collaboration",
 				"Knowledge Sharing",
 			},
-			Tags: []string{"go", "docker", "security", "code-review"},
+			Tags: []string{"backend", "frontend", "devops", "testing", "security", "performance"},
 		}
 		data, err := json.MarshalIndent(defaults, "", "  ")
 		if err != nil {

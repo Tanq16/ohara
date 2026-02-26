@@ -9,6 +9,7 @@ data/
 internal/server/static/js/tailwindcss.js
 internal/server/static/js/highlight.min.js
 internal/server/static/js/chart.umd.min.js
+internal/server/static/js/lucide.min.js
 internal/server/static/js/marked.umd.js
 internal/server/static/js/marked-highlight.umd.js
 internal/server/static/js/mermaid.min.js

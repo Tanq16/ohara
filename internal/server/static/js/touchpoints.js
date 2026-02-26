@@ -93,6 +93,12 @@ function getFilterCategory() {
 
 function getFilteredTouchpoints() {
   let tps = [...allTouchpoints];
+  const days = parseInt(document.getElementById("date-range").value, 10);
+  if (days > 0) {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    tps = tps.filter((tp) => new Date(tp.date) >= cutoff);
+  }
   const cat = getFilterCategory();
   const tags = getFilterTags();
   if (cat) tps = tps.filter((tp) => tp.category === cat);
@@ -128,20 +134,22 @@ function renderTouchpointList() {
       const cc = getCategoryColor(tp.category);
       const safeId = escapeHtml(tp.id);
       return `
-      <div class="tp-row" data-id="${safeId}">
+      <div class="tp-row" data-id="${safeId}" onclick="viewTouchpoint('${safeId}')">
         <span class="text-xs text-overlay0 w-16 flex-shrink-0">${formatDateShort(tp.date)}</span>
         <span class="cat-badge flex-shrink-0" style="background:${cc.bg};color:${cc.text}">${escapeHtml(tp.category)}</span>
         <span class="text-sm text-text flex-1 truncate">${escapeHtml(tp.description)}</span>
         ${(tp.tags || []).map((t) => `<span class="tag-chip" style="cursor:default;font-size:0.6rem;padding:1px 7px">${escapeHtml(t)}</span>`).join("")}
         ${tp.people_involved && tp.people_involved.length ? `<span class="text-xs text-overlay0 flex-shrink-0">${tp.people_involved.map(escapeHtml).join(", ")}</span>` : ""}
-        ${tp.url ? `<a href="${escapeHtml(tp.url)}" target="_blank" rel="noopener" class="text-blue text-xs hover:underline flex-shrink-0">Link</a>` : ""}
+        ${tp.url ? `<a href="${escapeHtml(tp.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-blue hover:text-lavender transition flex-shrink-0"><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>` : ""}
         <div class="tp-actions">
-          <button onclick="startEdit('${safeId}')" class="text-xs text-blue hover:text-lavender transition cursor-pointer px-1">Edit</button>
-          <button onclick="deleteTouchpoint('${safeId}')" class="text-xs text-red hover:brightness-125 transition cursor-pointer px-1">Delete</button>
+          <button onclick="event.stopPropagation(); startEdit('${safeId}')" class="text-blue hover:text-lavender transition cursor-pointer p-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+          <button onclick="event.stopPropagation(); deleteTouchpoint('${safeId}')" class="text-red hover:brightness-125 transition cursor-pointer p-1"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
         </div>
       </div>`;
     })
     .join("");
+
+  lucide.createIcons({ nodes: container.querySelectorAll("[data-lucide]") });
 }
 
 const modal = document.getElementById("tp-modal");
@@ -164,6 +172,71 @@ function closeModal() {
   }, 200);
 }
 
+const viewModal = document.getElementById("view-modal");
+const viewModalDialog = document.getElementById("view-modal-dialog");
+
+function openViewModal() {
+  viewModal.classList.add("show");
+  requestAnimationFrame(() => {
+    viewModalDialog.style.transform = "scale(1)";
+    viewModalDialog.style.opacity = "1";
+  });
+}
+
+function closeViewModal() {
+  viewModalDialog.style.transform = "scale(0.95)";
+  viewModalDialog.style.opacity = "0";
+  setTimeout(() => viewModal.classList.remove("show"), 200);
+}
+
+document.getElementById("view-modal-close").addEventListener("click", closeViewModal);
+document.getElementById("view-modal-backdrop").addEventListener("click", closeViewModal);
+
+function viewTouchpoint(id) {
+  const tp = allTouchpoints.find((t) => t.id === id);
+  if (!tp) return;
+
+  const renderer = new globalThis.marked.Marked(
+    globalThis.markedHighlight.markedHighlight({
+      langPrefix: "hljs language-",
+      highlight(code, lang) {
+        if (lang && hljs.getLanguage(lang)) {
+          return hljs.highlight(code, { language: lang }).value;
+        }
+        return code;
+      },
+    })
+  );
+
+  const cc = getCategoryColor(tp.category);
+  const body = document.getElementById("view-modal-body");
+  body.innerHTML = `
+    <div class="prose-catppuccin">${renderer.parse(tp.description || "")}</div>
+    <hr class="border-surface1">
+    <div class="flex flex-wrap items-center gap-3 text-sm">
+      <span class="text-overlay0">${formatDate(tp.date)}</span>
+      <span class="cat-badge" style="background:${cc.bg};color:${cc.text}">${escapeHtml(tp.category)}</span>
+    </div>
+    ${(tp.tags || []).length ? `
+    <div class="flex flex-wrap gap-1.5">
+      ${tp.tags.map((t) => `<span class="tag-chip" style="cursor:default">${escapeHtml(t)}</span>`).join("")}
+    </div>` : ""}
+    ${(tp.people_involved || []).length ? `
+    <div class="flex items-center gap-2 text-sm text-subtext0">
+      <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i>
+      <span>${tp.people_involved.map(escapeHtml).join(", ")}</span>
+    </div>` : ""}
+    ${tp.url ? `
+    <div class="flex items-center gap-2 text-sm">
+      <i data-lucide="external-link" class="w-4 h-4 flex-shrink-0 text-blue"></i>
+      <a href="${escapeHtml(tp.url)}" target="_blank" rel="noopener" class="text-blue hover:underline truncate">${escapeHtml(tp.url)}</a>
+    </div>` : ""}
+  `;
+
+  lucide.createIcons({ nodes: body.querySelectorAll("[data-lucide]") });
+  openViewModal();
+}
+
 document.getElementById("btn-new-touchpoint").addEventListener("click", () => {
   cancelEdit();
   openModal();
@@ -173,7 +246,10 @@ document.getElementById("modal-close").addEventListener("click", closeModal);
 document.getElementById("tp-modal-backdrop").addEventListener("click", closeModal);
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && modal.classList.contains("show")) closeModal();
+  if (e.key === "Escape") {
+    if (viewModal.classList.contains("show")) closeViewModal();
+    else if (modal.classList.contains("show")) closeModal();
+  }
 });
 
 document.getElementById("touchpoint-form").addEventListener("submit", async (e) => {
@@ -257,6 +333,11 @@ async function deleteTouchpoint(id) {
 }
 
 document.getElementById("filter-category").addEventListener("change", () => {
+  renderTouchpointList();
+  if (typeof initDashboard === "function") initDashboard();
+});
+
+document.getElementById("date-range").addEventListener("change", () => {
   renderTouchpointList();
   if (typeof initDashboard === "function") initDashboard();
 });

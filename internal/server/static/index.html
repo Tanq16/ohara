@@ -7,59 +7,6 @@
 
   <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg">
 
-  <script src="/static/js/tailwindcss.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            base:     'var(--base)',
-            mantle:   'var(--mantle)',
-            crust:    'var(--crust)',
-            text:     'var(--text)',
-            subtext1: 'var(--subtext1)',
-            subtext0: 'var(--subtext0)',
-            overlay2: 'var(--overlay2)',
-            overlay1: 'var(--overlay1)',
-            overlay0: 'var(--overlay0)',
-            surface2: 'var(--surface2)',
-            surface1: 'var(--surface1)',
-            surface0: 'var(--surface0)',
-            blue:     'var(--blue)',
-            lavender: 'var(--lavender)',
-            mauve:    'var(--mauve)',
-            green:    'var(--green)',
-            peach:    'var(--peach)',
-            red:      'var(--red)',
-            yellow:   'var(--yellow)',
-            teal:     'var(--teal)',
-            sky:      'var(--sky)',
-            sapphire: 'var(--sapphire)',
-            pink:     'var(--pink)',
-            flamingo: 'var(--flamingo)',
-            rosewater:'var(--rosewater)',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          borderRadius: {
-            '3xl': '1.5rem',
-          },
-        },
-      },
-    };
-  </script>
-
-  <link rel="stylesheet" href="/static/css/inter.css">
-  <link rel="stylesheet" href="/static/css/jetbrains-mono.css">
-
-  <script src="/static/js/highlight.min.js"></script>
-  <script src="/static/js/chart.umd.min.js"></script>
-  <script src="/static/js/marked.umd.js"></script>
-  <script src="/static/js/marked-highlight.umd.js"></script>
-  <script src="/static/js/mermaid.min.js"></script>
-
   <style>
     :root {
       --rosewater: #f5e0dc;
@@ -118,7 +65,7 @@
 
     .tp-row {
       display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-      border-radius: 12px; transition: background 0.15s ease; cursor: default; position: relative;
+      border-radius: 12px; transition: background 0.15s ease; cursor: pointer; position: relative;
     }
     .tp-row:hover { background: var(--surface1); }
     .tp-row .tp-actions { opacity: 0; transition: opacity 0.15s ease; display: flex; gap: 4px; flex-shrink: 0; }
@@ -126,6 +73,9 @@
 
     #tp-modal.show { display: flex !important; }
     #tp-modal.show #tp-modal-dialog { transform: scale(1); opacity: 1; }
+
+    #view-modal.show { display: flex !important; }
+    #view-modal.show #view-modal-dialog { transform: scale(1); opacity: 1; }
 
     .report-item {
       padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 0.825rem;
@@ -164,6 +114,9 @@
     .prose-catppuccin h1 { font-size: 1.6rem; border-bottom: 1px solid var(--surface0); padding-bottom: 0.3em; }
     .prose-catppuccin h2 { font-size: 1.3rem; border-bottom: 1px solid var(--surface0); padding-bottom: 0.3em; }
     .prose-catppuccin h3 { font-size: 1.1rem; }
+    .prose-catppuccin h4 { font-size: 1rem; }
+    .prose-catppuccin h5 { font-size: 0.95rem; }
+    .prose-catppuccin h6 { font-size: 0.9rem; color: var(--subtext0); }
     .prose-catppuccin p { margin: 0.75em 0; }
     .prose-catppuccin a { color: var(--blue); text-decoration: none; }
     .prose-catppuccin a:hover { text-decoration: underline; }
@@ -180,7 +133,10 @@
     .prose-catppuccin blockquote {
       border-left: 3px solid var(--blue); padding-left: 1em; margin: 1em 0; color: var(--subtext0);
     }
-    .prose-catppuccin ul, .prose-catppuccin ol { padding-left: 1.5em; margin: 0.75em 0; }
+    .prose-catppuccin ul { padding-left: 1.5em; margin: 0.75em 0; list-style-type: disc; }
+    .prose-catppuccin ol { padding-left: 1.5em; margin: 0.75em 0; list-style-type: decimal; }
+    .prose-catppuccin ul ul { list-style-type: circle; }
+    .prose-catppuccin ul ul ul { list-style-type: square; }
     .prose-catppuccin li { margin: 0.25em 0; }
     .prose-catppuccin table { width: 100%; border-collapse: collapse; margin: 1em 0; }
     .prose-catppuccin th {
@@ -207,10 +163,66 @@
       #reports-sidebar-toggle { display: flex; }
       #metadata { flex-direction: column; }
       #tp-modal-dialog { max-width: 100% !important; margin: 0.5rem !important; max-height: 95vh; overflow-y: auto; }
+      #view-modal-dialog { max-width: 100% !important; margin: 0.5rem !important; max-height: 95vh; }
     }
   </style>
+
+  <script src="/static/js/tailwindcss.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base:     'var(--base)',
+            mantle:   'var(--mantle)',
+            crust:    'var(--crust)',
+            text:     'var(--text)',
+            subtext1: 'var(--subtext1)',
+            subtext0: 'var(--subtext0)',
+            overlay2: 'var(--overlay2)',
+            overlay1: 'var(--overlay1)',
+            overlay0: 'var(--overlay0)',
+            surface2: 'var(--surface2)',
+            surface1: 'var(--surface1)',
+            surface0: 'var(--surface0)',
+            blue:     'var(--blue)',
+            lavender: 'var(--lavender)',
+            mauve:    'var(--mauve)',
+            maroon:   'var(--maroon)',
+            green:    'var(--green)',
+            peach:    'var(--peach)',
+            red:      'var(--red)',
+            yellow:   'var(--yellow)',
+            teal:     'var(--teal)',
+            sky:      'var(--sky)',
+            sapphire: 'var(--sapphire)',
+            pink:     'var(--pink)',
+            flamingo: 'var(--flamingo)',
+            rosewater:'var(--rosewater)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderRadius: {
+            '3xl': '1.5rem',
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="/static/css/inter.css">
+  <link rel="stylesheet" href="/static/css/jetbrains-mono.css">
+
+  <script src="/static/js/highlight.min.js"></script>
+  <script src="/static/js/chart.umd.min.js"></script>
+  <script src="/static/js/marked.umd.js"></script>
+  <script src="/static/js/marked-highlight.umd.js"></script>
+  <script src="/static/js/mermaid.min.js"></script>
+  <script src="/static/js/lucide.min.js"></script>
 </head>
-<body class="bg-crust text-text font-sans overflow-hidden h-screen flex flex-col">
+<body class="bg-base text-text font-sans overflow-hidden h-screen flex flex-col">
 
   <header class="flex items-center justify-center pt-4 pb-2 relative">
     <nav class="flex items-center gap-1 bg-surface0 rounded-full px-1.5 py-1.5">
@@ -232,9 +244,7 @@
         <h1 class="text-2xl font-bold text-text">Overview</h1>
         <button id="btn-new-touchpoint"
                 class="flex items-center gap-2 bg-blue text-base font-semibold text-sm px-5 py-2 rounded-full hover:brightness-110 transition cursor-pointer">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-          </svg>
+          <i data-lucide="plus" class="w-4 h-4"></i>
           New Touchpoint
         </button>
       </div>
@@ -274,15 +284,11 @@
           <div class="flex items-center gap-2">
             <button id="btn-upload-report"
                     class="text-subtext0 hover:text-blue transition cursor-pointer" title="Upload report">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-              </svg>
+              <i data-lucide="plus" class="w-4 h-4"></i>
             </button>
             <button id="reports-sidebar-close"
                     class="text-subtext0 hover:text-text transition cursor-pointer hidden" title="Close sidebar">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
+              <i data-lucide="x" class="w-4 h-4"></i>
             </button>
           </div>
           <input type="file" id="report-file-input" accept=".md" class="hidden">
@@ -294,9 +300,7 @@
         <div class="flex items-center gap-3 mb-4">
           <button id="reports-sidebar-toggle"
                   class="items-center gap-1.5 text-subtext0 hover:text-text text-sm transition cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
-            </svg>
+            <i data-lucide="menu" class="w-4 h-4"></i>
           </button>
         </div>
         <div id="report-content" class="markdown-body prose-catppuccin">
@@ -341,9 +345,7 @@
         <h2 id="form-title" class="text-lg font-bold text-text">New Touchpoint</h2>
         <button id="modal-close"
                 class="text-overlay0 hover:text-text transition cursor-pointer">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <form id="touchpoint-form" class="flex flex-col gap-4">
@@ -394,10 +396,26 @@
     </div>
   </div>
 
+  <div id="view-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div id="view-modal-backdrop" class="absolute inset-0 bg-crust/70 backdrop-blur-sm"></div>
+    <div id="view-modal-dialog"
+         class="relative bg-mantle border border-surface1 rounded-3xl shadow-2xl w-full max-w-2xl mx-4 p-6 transform scale-95 opacity-0 transition-all duration-200 max-h-[85vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-lg font-bold text-text">Touchpoint Details</h2>
+        <button id="view-modal-close"
+                class="text-overlay0 hover:text-text transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="view-modal-body" class="flex flex-col gap-4"></div>
+    </div>
+  </div>
+
   <script src="/static/js/app.js"></script>
   <script src="/static/js/touchpoints.js"></script>
   <script src="/static/js/dashboard.js"></script>
   <script src="/static/js/reports.js"></script>
   <script src="/static/js/metadata.js"></script>
+  <script>lucide.createIcons();</script>
 </body>
 </html>

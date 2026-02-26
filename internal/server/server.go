@@ -63,25 +63,36 @@ func (s *Server) setup() {
 	s.mux.HandleFunc("GET /api/reports/{filename}", s.getReport)
 	s.mux.HandleFunc("POST /api/reports", s.createReport)
 
-	sub, _ := fs.Sub(staticFiles, "static")
+	sub, err := fs.Sub(staticFiles, "static")
+	if err != nil {
+		log.Fatalf("ERROR [server] failed to create static sub-filesystem: %v", err)
+	}
 	s.mux.Handle("/static/", http.StripPrefix("/static/", http.FileServerFS(sub)))
 
 	s.mux.HandleFunc("GET /{$}", s.serveIndex)
 }
 
 func (s *Server) serveIndex(w http.ResponseWriter, r *http.Request) {
+	data, err := staticFiles.ReadFile("static/index.html")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write(indexHTML)
+	w.Write(data)
+}
+
+func withLogging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("INFO [server] %s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (s *Server) Run() error {
 	addr := fmt.Sprintf(":%d", s.config.Port)
-	return http.ListenAndServe(addr, s)
-}
-
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("INFO [server] %s %s", r.Method, r.URL.Path)
-	s.mux.ServeHTTP(w, r)
+	log.Printf("INFO [server] Starting on %s", addr)
+	return http.ListenAndServe(addr, withLogging(s.mux))
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {

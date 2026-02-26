@@ -32,7 +32,8 @@ async function initDashboard() {
     await loadTouchpoints();
   }
 
-  renderTimelineChart(allTouchpoints);
+  const filtered = getFilteredTouchpoints();
+  renderTimelineChart(filtered);
   renderTouchpointList();
 }
 
@@ -52,9 +53,11 @@ function renderTimelineChart(tps) {
 
   const countByMonth = {};
   const categoriesByMonth = {};
+  const tagsByMonth = {};
   monthKeys.forEach((k) => {
     countByMonth[k] = 0;
     categoriesByMonth[k] = new Set();
+    tagsByMonth[k] = new Set();
   });
 
   tps.forEach((tp) => {
@@ -62,14 +65,28 @@ function renderTimelineChart(tps) {
     if (countByMonth[key] !== undefined) {
       countByMonth[key]++;
       categoriesByMonth[key].add(tp.category);
+      (tp.tags || []).forEach((tag) => tagsByMonth[key].add(tag));
     }
   });
 
   const counts = monthKeys.map((k) => countByMonth[k]);
   const diversity = monthKeys.map((k) => categoriesByMonth[k].size);
+  const tagDiversity = monthKeys.map((k) => tagsByMonth[k].size);
+
+  const legendMarginPlugin = {
+    id: "legendMargin",
+    beforeInit(chart) {
+      const origFit = chart.legend.fit;
+      chart.legend.fit = function () {
+        origFit.call(this);
+        this.height += 16;
+      };
+    },
+  };
 
   timelineChart = new Chart(ctx, {
     type: "line",
+    plugins: [legendMarginPlugin],
     data: {
       labels,
       datasets: [
@@ -80,16 +97,31 @@ function renderTimelineChart(tps) {
           backgroundColor: CHART_COLORS.blue + "33",
           fill: true,
           tension: 0.3,
-          yAxisID: "y",
+          order: 0,
         },
         {
+          type: "bar",
           label: "Categories",
           data: diversity,
+          backgroundColor: CHART_COLORS.green + "cc",
           borderColor: CHART_COLORS.green,
-          backgroundColor: "transparent",
-          fill: false,
-          tension: 0.3,
-          yAxisID: "y1",
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.4,
+          categoryPercentage: 0.8,
+          order: 1,
+        },
+        {
+          type: "bar",
+          label: "Tags",
+          data: tagDiversity,
+          backgroundColor: CHART_COLORS.peach + "cc",
+          borderColor: CHART_COLORS.peach,
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.4,
+          categoryPercentage: 0.8,
+          order: 1,
         },
       ],
     },
@@ -121,17 +153,9 @@ function renderTimelineChart(tps) {
         },
         y: {
           position: "left",
-          title: { display: true, text: "Touchpoints", color: chartTheme.text },
           beginAtZero: true,
           ticks: { color: chartTheme.text, stepSize: 1, font: { size: 11 } },
           grid: { color: chartTheme.grid, drawBorder: false },
-        },
-        y1: {
-          position: "right",
-          title: { display: true, text: "Categories", color: chartTheme.text },
-          beginAtZero: true,
-          ticks: { color: chartTheme.text, stepSize: 1, font: { size: 11 } },
-          grid: { drawOnChartArea: false },
         },
       },
     },

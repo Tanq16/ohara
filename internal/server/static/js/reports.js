@@ -78,7 +78,7 @@ async function viewReport(filename, clickedEl) {
           if (lang && hljs.getLanguage(lang)) {
             return hljs.highlight(code, { language: lang }).value;
           }
-          return hljs.highlightAuto(code).value;
+          return code;
         },
       })
     );

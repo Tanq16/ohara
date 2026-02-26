@@ -51,6 +51,7 @@ assets: ## Download static assets
 	@curl -sL "https://cdn.jsdelivr.net/npm/marked@$(MARKED_VERSION)/lib/marked.umd.js" -o "$(JS_DIR)/marked.umd.js"
 	@curl -sL "https://cdn.jsdelivr.net/npm/marked-highlight@$(MARKED_HL_VERSION)/lib/index.umd.js" -o "$(JS_DIR)/marked-highlight.umd.js"
 	@curl -sL "https://cdn.jsdelivr.net/npm/mermaid@$(MERMAID_VERSION)/dist/mermaid.min.js" -o "$(JS_DIR)/mermaid.min.js"
+	@curl -sL "https://unpkg.com/lucide@latest" -o "$(JS_DIR)/lucide.min.js"
 	@curl -sL "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" -H "User-Agent: Mozilla/5.0" -o "$(CSS_DIR)/inter.css"
 	@grep -o "https://fonts.gstatic.com/[^)']*" "$(CSS_DIR)/inter.css" | sort -u | while read url; do \
 		filename=$$(basename "$$url" | sed 's/?.*//'); \
@@ -74,13 +75,14 @@ verify-assets: ## Verify required assets exist
 	@test -f $(JS_DIR)/marked.umd.js || (echo "$(YELLOW)marked.umd.js missing. Run 'make assets'$(NC)" && exit 1)
 	@test -f $(JS_DIR)/marked-highlight.umd.js || (echo "$(YELLOW)marked-highlight.umd.js missing. Run 'make assets'$(NC)" && exit 1)
 	@test -f $(JS_DIR)/mermaid.min.js || (echo "$(YELLOW)mermaid.min.js missing. Run 'make assets'$(NC)" && exit 1)
+	@test -f $(JS_DIR)/lucide.min.js || (echo "$(YELLOW)lucide.min.js missing. Run 'make assets'$(NC)" && exit 1)
 	@test -f $(CSS_DIR)/inter.css || (echo "$(YELLOW)inter.css missing. Run 'make assets'$(NC)" && exit 1)
 	@test -f $(CSS_DIR)/jetbrains-mono.css || (echo "$(YELLOW)jetbrains-mono.css missing. Run 'make assets'$(NC)" && exit 1)
 	@echo "$(GREEN)Assets verified$(NC)"
 
 clean: ## Remove built artifacts and downloaded assets
 	@rm -f $(APP_NAME) $(APP_NAME)-*
-	@rm -f $(JS_DIR)/tailwindcss.js $(JS_DIR)/highlight.min.js $(JS_DIR)/chart.umd.min.js $(JS_DIR)/marked.umd.js $(JS_DIR)/marked-highlight.umd.js $(JS_DIR)/mermaid.min.js
+	@rm -f $(JS_DIR)/tailwindcss.js $(JS_DIR)/highlight.min.js $(JS_DIR)/chart.umd.min.js $(JS_DIR)/marked.umd.js $(JS_DIR)/marked-highlight.umd.js $(JS_DIR)/mermaid.min.js $(JS_DIR)/lucide.min.js
 	@rm -rf $(CSS_DIR) $(FONTS_DIR)
 	@echo "$(GREEN)Cleaned$(NC)"
 
